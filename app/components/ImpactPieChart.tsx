@@ -2,51 +2,37 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { ApexOptions } from 'apexcharts';
+import type { ApexOptions } from 'apexcharts';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 interface ImpactPieChartProps {
   data: {
-    categories: string[];
+    labels: string[];
     values: number[];
   };
+  title?: string;
 }
 
-const ImpactPieChart: React.FC<ImpactPieChartProps> = ({ data }) => {
+const ImpactPieChart: React.FC<ImpactPieChartProps> = ({ data, title = 'Impact Distribution' }) => {
   const options: ApexOptions = {
     chart: {
       type: 'pie',
-    },
-    labels: data.categories,
-    colors: [
-      '#FF4560',
-      '#008FFB',
-      '#00E396',
-      '#FEB019',
-      '#775DD0',
-      '#3F51B5',
-      '#03A9F4',
-      '#4CAF50',
-      '#FFC107',
-      '#FF5722',
-      '#795548',
-      '#607D8B',
-      '#9C27B0',
-      '#E91E63',
-      '#2196F3',
-    ],
-    legend: {
-      position: 'right',
-      fontSize: '14px',
-      markers: {
-        width: 12,
-        height: 12,
+      toolbar: {
+        show: true,
       },
     },
-    tooltip: {
-      y: {
-        formatter: (value: number) => `${value}%`,
+    labels: data.labels,
+    colors: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'],
+    legend: {
+      position: 'bottom',
+      fontSize: '14px',
+      markers: {
+        size: 12,
+        strokeWidth: 0,
+        shape: 'circle',
+        offsetX: 0,
+        offsetY: 0,
       },
     },
     plotOptions: {
@@ -54,7 +40,28 @@ const ImpactPieChart: React.FC<ImpactPieChartProps> = ({ data }) => {
         donut: {
           size: '0%',
         },
-        customScale: 0.8,
+        customScale: 0.9,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number) => `${val.toFixed(1)}%`,
+      style: {
+        fontSize: '14px',
+        fontWeight: 500,
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => `${val.toFixed(1)}%`,
+      },
+    },
+    title: {
+      text: title,
+      align: 'center',
+      style: {
+        fontSize: '16px',
+        fontWeight: 600,
       },
     },
   };
@@ -62,11 +69,14 @@ const ImpactPieChart: React.FC<ImpactPieChartProps> = ({ data }) => {
   const series = data.values;
 
   return (
-    <div className="w-full h-[500px] bg-white rounded-lg shadow-lg p-4">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">
-        Carbon Impact Distribution
-      </h2>
-      <Chart options={options} series={series} type="pie" height="100%" />
+    <div className="w-full h-full min-h-[300px]">
+      <Chart
+        options={options}
+        series={series}
+        type="pie"
+        height="100%"
+        width="100%"
+      />
     </div>
   );
 };

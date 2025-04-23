@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateReportData, generateCSV, generatePDFContent, ReportGenerationError } from '../utils/reportGenerator';
-import html2pdf from 'html2pdf.js';
 import LoadingState from './LoadingState';
 
 interface DownloadOptionsProps {
@@ -16,6 +15,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [html2pdf, setHtml2pdf] = useState<any>(null);
+
+  useEffect(() => {
+    // Dynamically import html2pdf only on the client side
+    import('html2pdf.js').then((module) => {
+      setHtml2pdf(module.default);
+    });
+  }, []);
 
   const handleDownload = async (type: 'pdf' | 'csv' | 'print') => {
     try {
@@ -27,7 +34,11 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({
 
       switch (type) {
         case 'pdf':
-          await downloadPDF(data);
+          if (html2pdf) {
+            await downloadPDF(data);
+          } else {
+            throw new Error('PDF generation is not available yet');
+          }
           break;
         case 'csv':
           downloadCSV(data);
@@ -131,9 +142,9 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button
           onClick={() => handleDownload('pdf')}
-          disabled={isGenerating}
+          disabled={isGenerating || !html2pdf}
           className={`w-full py-2 px-4 rounded-md text-white font-medium ${
-            isGenerating
+            isGenerating || !html2pdf
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'
           }`}

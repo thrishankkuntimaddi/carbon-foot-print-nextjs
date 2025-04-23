@@ -12,24 +12,16 @@ import ImpactPieChart from '../components/ImpactPieChart';
 
 const CategoriesPage = () => {
   const impactData = {
-    categories: [
+    labels: [
       'Energy Consumption',
       'Transportation',
       'Waste Management',
-      'Materials Used',
-      'Product Imports/Exports',
-      'Production Processes',
-      'Labor and Maintenance',
-      'Packaging',
+      'Materials',
+      'Production',
       'Water Usage',
-      'Digital Infrastructure',
-      'Supply Chain Practices',
-      'Building Management',
-      'Product Lifecycle',
-      'Corporate Policies',
-      'Regulatory Factors',
+      'Digital Footprint',
     ],
-    values: [25, 20, 15, 10, 8, 7, 5, 4, 3, 3, 2, 2, 2, 2, 2],
+    values: [25, 20, 15, 12, 10, 8, 10],
   };
 
   return (
