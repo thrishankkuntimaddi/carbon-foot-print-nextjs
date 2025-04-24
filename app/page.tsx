@@ -6,6 +6,9 @@ import KPI from "./components/KPI";
 import ReportGenerator from "./components/ReportGenerator";
 import InsightsPanel from "./components/InsightsPanel";
 import CategoriesPage from "./categories/categories";
+import CarbonFootprintInsights from './components/CarbonFootprintInsights';
+import StreakTracker from './components/StreakTracker';
+import ImpactPieChart from './components/ImpactPieChart';
 
 interface EmissionsData {
   energy: {
@@ -58,6 +61,19 @@ export default function Home() {
   const [insightsData, setInsightsData] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const impactData = {
+    labels: [
+      'Energy Consumption',
+      'Transportation',
+      'Waste Management',
+      'Materials',
+      'Production',
+      'Water Usage',
+      'Digital Footprint',
+    ],
+    values: [25, 20, 15, 12, 10, 8, 10],
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,12 +106,17 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Carbon Footprint Dashboard
           </h1>
+
+          {/* Insights Section */}
+          <div className="mb-8">
+            <CarbonFootprintInsights />
+          </div>
 
           {/* KPIs */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
@@ -122,32 +143,24 @@ export default function Home() {
             />
           </div>
 
+          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Chart */}
+            {/* Impact Distribution Chart */}
             <div className="lg:col-span-2">
-              {emissionsData && (
-                <EmissionChart
-                  data={{
-                    energy: emissionsData.energy.electricity,
-                    transport: emissionsData.transportation.fleet,
-                    waste: emissionsData.waste.general,
-                    labels: emissionsData.labels,
-                  }}
-                />
-              )}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Impact Distribution
+                </h2>
+                <ImpactPieChart data={impactData} />
+              </div>
             </div>
 
-            {/* Insights Panel */}
-            <div className="lg:col-span-1">
-              {insightsData && (
-                <InsightsPanel
-                  insights={insightsData.current_insights}
-                  alerts={insightsData.alerts}
-                  sustainabilityIndex={insightsData.sustainability_index}
-                />
-              )}
+            {/* Streak Tracker */}
+            <div>
+              <StreakTracker />
             </div>
           </div>
+
           <div>
             <CategoriesPage />
           </div>
