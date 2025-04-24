@@ -1,28 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import Papa from 'papaparse';
+import Papa, { ParseResult, ParseConfig } from 'papaparse';
 
 interface FileUploadProps {
   onDataLoaded: (data: any) => void;
 }
 
-interface ParseError {
-  type: string;
-  code: string;
-  message: string;
-  row?: number;
+interface CsvData {
+  date: string;
+  category: string;
+  subcategory: string;
+  value: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processData = (results: Papa.ParseResult<any>) => {
+  const processData = (results: ParseResult<CsvData>) => {
     const { data } = results;
     
     // Group data by date and category
-    const processedData = data.reduce((acc: any, row: any) => {
+    const processedData = data.reduce((acc: any, row: CsvData) => {
       const { date, category, subcategory, value } = row;
       
       if (!acc[date]) {
@@ -52,17 +52,28 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
       return;
     }
 
-    Papa.parse(file, {
-      header: true,
-      complete: (results: Papa.ParseResult<any>) => {
-        processData(results);
-        setLoading(false);
-      },
-      error: (error: ParseError) => {
-        setError(`Error parsing CSV file: ${error.message}`);
-        setLoading(false);
+    // Create a FileReader instance
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        Papa.parse<CsvData>(e.target.result as string, {
+          header: true,
+          complete: (results: ParseResult<CsvData>) => {
+            processData(results);
+            setLoading(false);
+          },
+          error: (error) => {
+            setError(`Error parsing CSV file: ${error.message}`);
+            setLoading(false);
+          }
+        });
       }
-    });
+    };
+    reader.onerror = () => {
+      setError('Error reading file');
+      setLoading(false);
+    };
+    reader.readAsText(file);
   };
 
   const handleDemoData = async () => {
@@ -71,13 +82,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
       const response = await fetch('/sample_data.csv');
       const text = await response.text();
       
-      Papa.parse(text, {
+      Papa.parse<CsvData>(text, {
         header: true,
-        complete: (results: Papa.ParseResult<any>) => {
+        complete: (results: ParseResult<CsvData>) => {
           processData(results);
           setLoading(false);
         },
-        error: (error: ParseError) => {
+        error: (error) => {
           setError(`Error loading demo data: ${error.message}`);
           setLoading(false);
         }
