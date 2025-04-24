@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import EnergyConsumption from '../components/categories/EnergyConsumption';
 import Transportation from '../components/categories/Transportation';
 import WasteManagement from '../components/categories/WasteManagement';
@@ -11,7 +11,7 @@ import DigitalInfrastructure from '../components/categories/DigitalInfrastructur
 import ImpactPieChart from '../components/ImpactPieChart';
 
 const CategoriesPage = () => {
-  const impactData = {
+  const [chartData, setChartData] = useState({
     labels: [
       'Energy Consumption',
       'Transportation',
@@ -22,7 +22,15 @@ const CategoriesPage = () => {
       'Digital Footprint',
     ],
     values: [25, 20, 15, 12, 10, 8, 10],
-  };
+  });
+
+  useEffect(() => {
+    // Ensure data is properly formatted when component mounts
+    setChartData(prevData => ({
+      ...prevData,
+      values: prevData.values.map(value => Number(value))
+    }));
+  }, []);
 
   return (
     <main className="min-h-screen bg-gray-100">
@@ -33,8 +41,11 @@ const CategoriesPage = () => {
           </h1>
 
           {/* Impact Distribution Chart */}
-          <div className="mb-8">
-            <ImpactPieChart data={impactData} />
+          <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+            <ImpactPieChart 
+              data={chartData} 
+              title="Carbon Impact Distribution"
+            />
           </div>
 
           {/* Category Components */}
