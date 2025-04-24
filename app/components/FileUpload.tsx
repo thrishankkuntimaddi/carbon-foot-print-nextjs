@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import Papa from 'papaparse';
 
@@ -5,11 +7,18 @@ interface FileUploadProps {
   onDataLoaded: (data: any) => void;
 }
 
+interface ParseError {
+  type: string;
+  code: string;
+  message: string;
+  row?: number;
+}
+
 const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processData = (results: any) => {
+  const processData = (results: Papa.ParseResult<any>) => {
     const { data } = results;
     
     // Group data by date and category
@@ -45,12 +54,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
 
     Papa.parse(file, {
       header: true,
-      complete: (results) => {
+      complete: (results: Papa.ParseResult<any>) => {
         processData(results);
         setLoading(false);
       },
-      error: (error) => {
-        setError('Error parsing CSV file');
+      error: (error: ParseError) => {
+        setError(`Error parsing CSV file: ${error.message}`);
         setLoading(false);
       }
     });
@@ -64,12 +73,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
       
       Papa.parse(text, {
         header: true,
-        complete: (results) => {
+        complete: (results: Papa.ParseResult<any>) => {
           processData(results);
           setLoading(false);
         },
-        error: (error) => {
-          setError('Error loading demo data');
+        error: (error: ParseError) => {
+          setError(`Error loading demo data: ${error.message}`);
           setLoading(false);
         }
       });
